@@ -2,221 +2,58 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meus Favoritos Vinted</title>
-    <!-- Importar a biblioteca oficial do Supabase -->
+    <title>Closet Vinted</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --vinted-teal: #09B1BA;
-            --vinted-dark-teal: #007782;
-            --bg-color: #F2F2F2;
-            --card-bg: #FFFFFF;
-            --text-main: #111111;
-            --text-muted: #666666;
-            --danger: #FF4D4D;
-            --danger-hover: #CC0000;
-        }
-
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        header { text-align: center; margin-bottom: 30px; }
-        header h1 { color: var(--vinted-dark-teal); margin-bottom: 5px; }
-        
-        .form-container { background: var(--card-bg); padding: 25px; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .form-container h3 { margin-top: 0; margin-bottom: 15px; color: var(--vinted-dark-teal); }
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 15px; }
-        
-        input, select { padding: 12px; border: 1px solid #DCDCDC; border-radius: 8px; font-size: 14px; outline: none; width: 100%; box-sizing: border-box; }
-        input:focus, select:focus { border-color: var(--vinted-teal); }
-        
-        button { background-color: var(--vinted-teal); color: white; border: none; padding: 12px 24px; font-size: 14px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; }
-        button:hover { background-color: var(--vinted-dark-teal); }
-        
-        .controls { display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .filter-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
-        .filter-btn { background-color: #EAEAEA; color: var(--text-main); padding: 8px 16px; border-radius: 20px; font-size: 13px; width: auto; }
-        .filter-btn.active { background-color: var(--vinted-dark-teal); color: white; }
-        .search-box { max-width: 300px; }
-        
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 20px; }
-        .card { background: var(--card-bg); border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.04); display: flex; flex-direction: column; transition: transform 0.2s; }
-        .card:hover { transform: translateY(-4px); }
-        .card-img-container { position: relative; width: 100%; padding-top: 125px; background-color: #F9F9F9; }
-        .card img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; }
-        .category-badge { position: absolute; top: 10px; right: 10px; background: rgba(0, 0, 0, 0.6); color: white; padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; }
-        
-        .card-content { padding: 15px; display: flex; flex-direction: column; flex-grow: 1; }
-        .card-brand { font-size: 16px; font-weight: 700; margin: 0 0 5px 0; text-transform: uppercase; }
-        .card-size { font-size: 14px; color: var(--text-muted); margin: 0 0 15px 0; }
-        .card-actions { margin-top: auto; display: flex; gap: 8px; }
-        
-        .btn-vinted { background-color: #FFFFFF; color: var(--vinted-dark-teal); border: 1px solid var(--vinted-dark-teal); padding: 10px; text-decoration: none; text-align: center; font-weight: bold; font-size: 13px; border-radius: 6px; flex-grow: 1; display: flex; align-items: center; justify-content: center; }
-        .btn-vinted:hover { background-color: #F4FBFB; }
-        .btn-delete { background-color: var(--danger); padding: 10px; width: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
-        .btn-delete:hover { background-color: var(--danger-hover); }
-        
-        .empty-state { grid-column: 1 / -1; text-align: center; padding: 40px; color: var(--text-muted); background: var(--card-bg); border-radius: 12px; }
+        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
+        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .card img { max-width: 100%; height: auto; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <header>
-            <h1>☁️ O Meu Closet de Desejos Vinted</h1>
-            <p style="color: var(--text-muted); margin: 0;">Guardado em segurança na Cloud</p>
-        </header>
-
-        <!-- Formulário para Adicionar -->
-        <div class="form-container">
-            <h3>Adicionar Novo Artigo</h3>
-            <div class="form-grid">
-                <input type="text" id="marca" placeholder="Marca (ex: Levi's, Nike)">
-                <input type="text" id="tamanho" placeholder="Tamanho (ex: M, 38, Único)">
-                <select id="categoria">
-                    <option value="Casacos">Casacos</option>
-                    <option value="T-shirts">T-shirts</option>
-                    <option value="Calças">Calças</option>
-                    <option value="Diversos">Diversos</option>
-                </select>
-                <input type="text" id="foto" placeholder="URL da Imagem da Vinted">
-            </div>
-            <input type="text" id="link" placeholder="Link direto para o artigo na Vinted" style="margin-bottom: 15px;">
-            <button onclick="adicionarArticle()">Guardar Favorito</button>
-        </div>
-
-        <!-- Filtros e Pesquisa -->
-        <div class="controls">
-            <div class="filter-buttons">
-                <button class="filter-btn active" onclick="filtrarCategoria('Todos', this)">Todos</button>
-                <button class="filter-btn" onclick="filtrarCategoria('Casacos', this)">Casacos</button>
-                <button class="filter-btn" onclick="filtrarCategoria('T-shirts', this)">T-shirts</button>
-                <button class="filter-btn" onclick="filtrarCategoria('Calças', this)">Calças</button>
-                <button class="filter-btn" onclick="filtrarCategoria('Diversos', this)">Diversos</button>
-            </div>
-            <div class="search-box">
-                <input type="text" id="pesquisaMarca" placeholder="🔍 Procurar por marca..." oninput="filtrarPorMarca()">
-            </div>
-        </div>
-
-        <!-- Lista de Artigos -->
-        <div class="grid" id="listaArtigos">
-            <div class="empty-state">A estabelecer ligação com o Supabase... se isto não desaparecer, envia o site para o Vercel!</div>
-        </div>
+    <h1>O Meu Closet</h1>
+    <div>
+        <input type="text" id="marca" placeholder="Marca">
+        <input type="text" id="link" placeholder="Link">
+        <button onclick="adicionar()">Guardar</button>
     </div>
 
+    <div class="grid" id="lista"></div>
+
     <script>
-        // Configuração segura e única (Sem duplicações)
+        // Inicialização única
         const supabaseUrl = 'https://eruhimxndstwsjgcvbac.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVydWhpbXhuZHN0d3NqZ2N2YmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU5Mzg1ODIsImV4cCI6MjAzMTUxNDU4Mn0.ejQ87s-N649LqKk4pXfW4pWzS0iWd7n1-vJ8P0bN9-w';
-        
-        let supabase;
-        try {
-            supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
-        } catch (e) {
-            console.error("Erro a iniciar Supabase:", e);
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function carregar() {
+            const { data, error } = await supabase.from('Favoritos').select('*');
+            if (error) { console.error(error); return; }
+            const lista = document.getElementById('lista');
+            lista.innerHTML = data.map(i => `
+                <div class="card">
+                    <h4>${i.Marca}</h4>
+                    <a href="${i.Link}" target="_blank">Ver</a>
+                    <button onclick="apagar(${i.id})">Apagar</button>
+                </div>
+            `).join('');
         }
 
-        let todosOsArtigos = [];
-        let categoriaAtual = 'Todos';
-
-        async function carregarArtigos() {
-            if (!supabase) return;
-            const grid = document.getElementById('listaArtigos');
-            
-            try {
-                const { data, error } = await supabase
-                    .from('favoritos')
-                    .select('*')
-                    .order('id', { ascending: false });
-                
-                if (error) throw error;
-                todosOsArtigos = data || [];
-                renderizarArtigos(todosOsArtigos);
-            } catch (err) {
-                grid.innerHTML = `<div class="empty-state" style="color: #ff4d4d;">Erro de Ligação. Testa abrir o site através do Vercel. Erro: ${err.message}</div>`;
-            }
+        async function adicionar() {
+            const m = document.getElementById('marca').value;
+            const l = document.getElementById('link').value;
+            await supabase.from('Favoritos').insert([{ Marca: m, Link: l }]);
+            carregar();
         }
 
-        function renderizarArtigos(lista) {
-            const grid = document.getElementById('listaArtigos');
-            if (lista.length === 0) {
-                grid.innerHTML = '<div class="empty-state">Nenhum artigo encontrado. O teu closet está vazio!</div>';
-                return;
-            }
-
-            grid.innerHTML = lista.map(item => {
-                const imgUrl = item.foto && item.foto.trim() !== "" ? item.foto : "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=400&auto=format&fit=crop";
-                return `
-                    <div class="card">
-                        <div class="card-img-container">
-                            <img src="${imgUrl}" alt="Artigo" onerror="this.src='https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?q=80&w=400&auto=format&fit=crop'">
-                            <span class="category-badge">${item.categoria}</span>
-                        </div>
-                        <div class="card-content">
-                            <h4 class="card-brand">${item.marca || 'Sem Marca'}</h4>
-                            <p class="card-size">Tam: <b>${item.tamanho || 'N/A'}</b></p>
-                            <div class="card-actions">
-                                <a href="${item.link}" target="_blank" class="btn-vinted">Ver na Vinted ↗</a>
-                                <button onclick="eliminarArtigo(${item.id})" class="btn-delete" title="Remover">🗑️</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        async function apagar(id) {
+            await supabase.from('Favoritos').delete().eq('id', id);
+            carregar();
         }
 
-        async function adicionarArticle() {
-            if (!supabase) return;
-            const novoArtigo = {
-                marca: document.getElementById('marca').value.trim(),
-                tamanho: document.getElementById('tamanho').value.trim(),
-                categoria: document.getElementById('categoria').value,
-                foto: document.getElementById('foto').value.trim(),
-                link: document.getElementById('link').value.trim()
-            };
-
-            if (!novoArtigo.link || !novoArtigo.marca) {
-                alert("Preenche pelo menos a Marca e o Link da Vinted!");
-                return;
-            }
-
-            const { error } = await supabase.from('favoritos').insert([novoArtigo]);
-            if (error) alert("Erro: " + error.message);
-            else {
-                document.getElementById('marca').value = ''; document.getElementById('tamanho').value = '';
-                document.getElementById('foto').value = ''; document.getElementById('link').value = '';
-                carregarArtigos();
-            }
-        }
-
-        async function eliminarArtigo(id) {
-            if (!supabase) return;
-            if (confirm("Remover este artigo dos favoritos?")) {
-                const { error } = await supabase.from('favoritos').delete().eq('id', id);
-                if (error) alert("Erro: " + error.message);
-                else carregarArtigos();
-            }
-        }
-
-        function filtrarCategoria(categoria, botao) {
-            categoriaAtual = categoria;
-            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
-            botao.classList.add('active');
-            aplicarFiltrosCombinados();
-        }
-
-        function filtrarPorMarca() { aplicarFiltrosCombinados(); }
-
-        function aplicarFiltrosCombinados() {
-            const termo = document.getElementById('pesquisaMarca').value.toLowerCase();
-            let filtrados = todosOsArtigos;
-            if (categoriaAtual !== 'Todos') filtrados = filtrados.filter(a => a.categoria === categoriaAtual);
-            if (termo !== '') filtrados = filtrados.filter(a => a.marca && a.marca.toLowerCase().includes(termo));
-            renderizarArtigos(filtrados);
-        }
-
-        carregarArtigos();
+        carregar();
     </script>
 </body>
 </html>
