@@ -137,10 +137,6 @@
         <div class="photo-preview" id="photoPreview"><span>sem foto</span></div>
       </div>
       <div class="field">
-        <label for="f-fotolink">Ou link direto da imagem</label>
-        <input type="url" id="f-fotolink" placeholder="https://...">
-      </div>
-      <div class="field">
         <label for="f-marca">Marca</label>
         <input type="text" id="f-marca" placeholder="ex: Zara">
       </div>
@@ -163,7 +159,7 @@
 <script>
 (function(){
   // ====== CONFIGURA AQUI ======
-  const SUPABASE_URL = 'https://znkjxzpreakygmobzzjw.supabase.co/rest/v1/';
+  const SUPABASE_URL = 'https://znkjxzpreakygmobzzjw.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpua2p4enByZWFreWdtb2J6emp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0ODIxMjEsImV4cCI6MjA5ODA1ODEyMX0.ZKfIoqiAnzw5VSJIZ3xm9334FhX4rR59-m3unE2NJP8';
   const PHOTOS_BUCKET = 'fotos';
   // =============================
@@ -196,7 +192,6 @@
   const newCatInput = document.getElementById('f-novacategoria');
   const photoInput = document.getElementById('f-foto');
   const photoPreview = document.getElementById('photoPreview');
-  const photoLinkInput = document.getElementById('f-fotolink');
   const modalTitle = document.getElementById('modalTitle');
 
   function escapeHtml(s){
@@ -302,7 +297,6 @@
     pendingFile = null;
     pendingImagePreviewUrl = null;
     photoPreview.innerHTML = '<span>sem foto</span>';
-    photoLinkInput.value='';
     populateCategorySelect();
     newCatField.hidden = true;
   }
@@ -324,7 +318,6 @@
     document.getElementById('f-marca').value = it.brand || '';
     document.getElementById('f-tamanho').value = it.size || '';
     document.getElementById('f-link').value = it.link || '';
-    photoLinkInput.value = it.image || '';
     pendingFile = null;
     photoPreview.innerHTML = it.image ? `<img src="${it.image}">` : '<span>sem foto</span>';
     openModal('Editar peça');
@@ -356,17 +349,6 @@
     pendingFile = blob;
     pendingImagePreviewUrl = URL.createObjectURL(blob);
     photoPreview.innerHTML = `<img src="${pendingImagePreviewUrl}">`;
-  });
-
-  photoLinkInput.addEventListener('input', () => {
-    const url = photoLinkInput.value.trim();
-    if(url){
-      pendingFile = null;
-      pendingImagePreviewUrl = url;
-      photoPreview.innerHTML = `<img src="${url}">`;
-    }else if(!photoInput.files.length){
-      photoPreview.innerHTML = '<span>sem foto</span>';
-    }
   });
 
   async function deleteItem(id){
@@ -405,12 +387,8 @@
       }
 
       let imageUrl = null, imagePath = null;
-      const imageLink = photoLinkInput.value.trim();
       const existing = editingId ? items.find(x => x.id === editingId) : null;
-      if(imageLink){
-        imageUrl = imageLink;
-        imagePath = null;
-      } else if(pendingFile){
+      if(pendingFile){
         const path = `item-${Date.now()}-${Math.random().toString(36).slice(2,7)}.jpg`;
         const { error: upErr } = await sb.storage.from(PHOTOS_BUCKET).upload(path, pendingFile, { contentType: 'image/jpeg' });
         if(upErr) throw upErr;
