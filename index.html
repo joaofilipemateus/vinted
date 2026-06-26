@@ -1,63 +1,438 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt">
 <head>
-    <meta charset="UTF-8">
-    <title>Closet Vinted</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: sans-serif; padding: 20px; background: #f4f4f4; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 20px; }
-        .card { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .card img { max-width: 100%; height: auto; border-radius: 4px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Favoritos Vinted</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --bg: #ECE7DC;
+    --surface: #FFFFFF;
+    --ink: #262320;
+    --ink-soft: #79716699;
+    --ink-soft2: #797166aa;
+    --accent: #A8392E;
+    --accent-2: #33495C;
+    --line: #D9D2C2;
+    --radius: 3px;
+    --font-display: 'Oswald', sans-serif;
+    --font-body: 'Inter', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{ background: var(--bg); color: var(--ink); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+  @media (prefers-reduced-motion: reduce){ *{ transition: none !important; animation: none !important; } }
+
+  header.tagband{
+    background: var(--accent-2); color: #F3EFE4; padding: 22px 28px;
+    display:flex; align-items:center; justify-content:space-between; gap: 16px; flex-wrap: wrap;
+    border-bottom: 3px double #F3EFE466;
+  }
+  .brandmark{ font-family: var(--font-display); font-weight:700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 22px; display:flex; align-items:baseline; gap:10px; }
+  .brandmark small{ font-family: var(--font-mono); font-size:11px; letter-spacing: 0.08em; color:#F3EFE4aa; text-transform:none; }
+  .btn-add{ font-family: var(--font-body); font-weight:600; font-size: 14px; background: var(--accent); color:#fff; border: none; border-radius: var(--radius); padding: 11px 18px; cursor:pointer; letter-spacing: 0.01em; }
+  .btn-add:hover{ filter: brightness(1.08); }
+  .btn-add:focus-visible{ outline: 2px solid #F3EFE4; outline-offset: 2px; }
+
+  .controls{ max-width: 1180px; margin: 0 auto; padding: 22px 28px 4px; display:flex; flex-wrap:wrap; gap: 10px 12px; align-items:center; }
+  .pill{ font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase; background: transparent; border: 1px solid var(--line); color: var(--ink-soft); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+  .pill.active{ background: var(--accent-2); border-color: var(--accent-2); color: #fff; }
+  .pill:focus-visible{ outline: 2px solid var(--accent-2); outline-offset: 2px; }
+  .search-wrap{ margin-left: auto; }
+  .search-wrap input{ font-family: var(--font-body); font-size: 13.5px; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius); padding: 9px 12px; width: 200px; color: var(--ink); }
+  .search-wrap input:focus-visible{ outline: 2px solid var(--accent-2); }
+
+  .count-line{ max-width: 1180px; margin: 0 auto; padding: 4px 28px 0; font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+
+  main{ max-width: 1180px; margin: 0 auto; padding: 30px 28px 80px; }
+  .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 34px 20px; }
+  .card{ position:relative; background: var(--surface); border-radius: var(--radius); box-shadow: 0 1px 3px rgba(0,0,0,.07), 0 1px 2px rgba(0,0,0,.04); overflow: visible; display:flex; flex-direction:column; }
+  .card-string{ position:absolute; top:-15px; left: 24px; width: 18px; height: 13px; border: 2px solid var(--ink-soft2); border-bottom: none; border-radius: 18px 18px 0 0; }
+  .card-hole{ position:absolute; top: -6px; left: 24px; width: 12px; height: 12px; border-radius: 50%; background: var(--bg); border: 1px solid var(--line); box-shadow: inset 0 1px 2px rgba(0,0,0,.18); }
+  .card-photo{ width:100%; aspect-ratio: 4 / 5; background: #F2EFE7; overflow:hidden; border-radius: var(--radius) var(--radius) 0 0; display:flex; align-items:center; justify-content:center; }
+  .card-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .card-photo .noimg{ font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; }
+  .card-body{ padding: 14px 14px 16px; display:flex; flex-direction:column; gap: 6px; flex:1; }
+  .card-cat{ font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
+  .card-brand{ font-family: var(--font-display); font-weight:600; font-size: 17px; line-height:1.2; color: var(--ink); }
+  .card-size{ font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
+  .card-foot{ margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top: 8px; border-top: 1px dashed var(--line); }
+  .card-link{ font-family: var(--font-body); font-weight:600; font-size: 12.5px; color: var(--accent-2); text-decoration:none; border-bottom: 1px solid var(--accent-2); }
+  .card-link:hover{ color: var(--accent); border-color: var(--accent); }
+  .card-actions{ display:flex; gap: 6px; }
+  .icon-btn{ background:none; border:none; cursor:pointer; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); padding: 2px 4px; }
+  .icon-btn:hover{ color: var(--accent); }
+  .icon-btn:focus-visible{ outline:2px solid var(--accent-2); }
+
+  .empty{ text-align:center; padding: 70px 20px; color: var(--ink-soft); }
+  .empty .et{ font-family: var(--font-display); font-size: 19px; color: var(--ink); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .04em; }
+  .empty .es{ font-size: 13.5px; max-width: 360px; margin: 0 auto; }
+
+  .overlay{ position:fixed; inset:0; background: rgba(38,35,32,.5); display:flex; align-items:center; justify-content:center; padding: 20px; z-index: 50; }
+  .overlay[hidden]{ display:none; }
+  .modal{ background: var(--surface); border-radius: var(--radius); width: 100%; max-width: 420px; max-height: 90vh; overflow-y:auto; padding: 26px 24px 22px; }
+  .modal h2{ font-family: var(--font-display); font-size: 18px; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 18px; color: var(--ink); }
+  .field{ margin-bottom: 14px; display:flex; flex-direction:column; gap:5px; }
+  .field label{ font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-soft); }
+  .field input[type=text], .field input[type=url], .field select{ font-family: var(--font-body); font-size: 14px; border: none; border-bottom: 1px solid var(--line); padding: 7px 2px; background: transparent; color: var(--ink); }
+  .field input:focus-visible, .field select:focus-visible{ outline:none; border-color: var(--accent-2); }
+  .field input[type=file]{ font-family: var(--font-body); font-size: 12.5px; }
+  .photo-preview{ width: 84px; height: 105px; border-radius: var(--radius); background: #F2EFE7; overflow:hidden; display:flex; align-items:center; justify-content:center; margin-top:6px; }
+  .photo-preview img{ width:100%; height:100%; object-fit:cover; }
+  .photo-preview span{ font-family: var(--font-mono); font-size: 9.5px; color: var(--ink-soft); text-transform:uppercase; }
+  .modal-actions{ display:flex; justify-content:space-between; align-items:center; margin-top: 18px; }
+  .btn-secondary{ background:none; border:none; cursor:pointer; font-family: var(--font-body); font-size: 13px; color: var(--ink-soft); }
+  .btn-secondary:hover{ color: var(--ink); }
+  .btn-primary{ background: var(--accent-2); color:#fff; border:none; font-family: var(--font-body); font-weight:600; font-size: 13.5px; border-radius: var(--radius); padding: 10px 18px; cursor:pointer; }
+  .btn-primary:hover{ filter: brightness(1.08); }
+  .new-cat-row{ display:flex; gap:8px; }
+  .new-cat-row input{ flex:1; }
+  .banner{ max-width:1180px; margin: 14px auto 0; padding: 10px 28px; font-family: var(--font-mono); font-size: 11.5px; color:#7A2A22; background:#F7E6E2; border-radius: var(--radius); }
+  .banner[hidden]{ display:none; }
+</style>
 </head>
 <body>
 
-    <h1>O Meu Closet</h1>
-    <div>
-        <input type="text" id="marca" placeholder="Marca">
-        <input type="text" id="link" placeholder="Link">
-        <button onclick="adicionar()">Guardar</button>
-    </div>
+<header class="tagband">
+  <div class="brandmark">Favoritos <small>· vinted</small></div>
+  <button class="btn-add" id="openAdd">+ Adicionar peça</button>
+</header>
 
-    <div class="grid" id="lista"></div>
+<div class="banner" id="configBanner" hidden>
+  Falta configurar a ligação ao Supabase — edita SUPABASE_URL e SUPABASE_ANON_KEY no topo do ficheiro index.html.
+</div>
 
-    <script>
-        // Configuração única - garantindo que 'supabase' só é declarado uma vez
-        const supabaseUrl = 'https://eruhimxndstwsjgcvbac.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVydWhpbXhuZHN0d3NqZ2N2YmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU5Mzg1ODIsImV4cCI6MjAzMTUxNDU4Mn0.ejQ87s-N649LqKk4pXfW4pWzS0iWd7n1-vJ8P0bN9-w';
-        
-        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+<div class="controls" id="filterBar"></div>
+<div class="count-line" id="countLine"></div>
 
-        async function carregar() {
-            const { data, error } = await supabase.from('Favoritos').select('*');
-            if (error) { console.error("Erro ao carregar:", error); return; }
-            
-            const lista = document.getElementById('lista');
-            lista.innerHTML = data.map(i => `
-                <div class="card">
-                    <h4>${i.Marca}</h4>
-                    <a href="${i.Link}" target="_blank">Ver</a>
-                    <button onclick="apagar(${i.id})">Apagar</button>
-                </div>
-            `).join('');
+<main>
+  <div class="grid" id="grid"></div>
+  <div class="empty" id="emptyState" hidden>
+    <div class="et">O armário está vazio</div>
+    <div class="es">Adiciona a tua primeira peça com foto, marca, tamanho e o link da Vinted.</div>
+  </div>
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="modal">
+    <h2 id="modalTitle">Adicionar peça</h2>
+    <form id="itemForm">
+      <div class="field">
+        <label for="f-categoria">Categoria</label>
+        <select id="f-categoria"></select>
+      </div>
+      <div class="field" id="newCatField" hidden>
+        <label for="f-novacategoria">Nova categoria</label>
+        <div class="new-cat-row">
+          <input type="text" id="f-novacategoria" placeholder="ex: Vestidos">
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-foto">Foto</label>
+        <input type="file" id="f-foto" accept="image/*">
+        <div class="photo-preview" id="photoPreview"><span>sem foto</span></div>
+      </div>
+      <div class="field">
+        <label for="f-marca">Marca</label>
+        <input type="text" id="f-marca" placeholder="ex: Zara">
+      </div>
+      <div class="field">
+        <label for="f-tamanho">Tamanho</label>
+        <input type="text" id="f-tamanho" placeholder="ex: M / 38 / 10 anos">
+      </div>
+      <div class="field">
+        <label for="f-link">Link da Vinted</label>
+        <input type="url" id="f-link" placeholder="https://www.vinted.pt/...">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-secondary" id="closeModal">Cancelar</button>
+        <button type="submit" class="btn-primary" id="saveBtn">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+(function(){
+  // ====== CONFIGURA AQUI ======
+  const SUPABASE_URL = 'https://znkjxzpreakygmobzzjw.supabase.co/rest/v1/';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpua2p4enByZWFreWdtb2J6emp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0ODIxMjEsImV4cCI6MjA5ODA1ODEyMX0.ZKfIoqiAnzw5VSJIZ3xm9334FhX4rR59-m3unE2NJP8';
+  const PHOTOS_BUCKET = 'fotos';
+  // =============================
+
+  let sb = null;
+  const isConfigured = !SUPABASE_URL.includes('SEU-PROJETO');
+  if(isConfigured){
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  }else{
+    document.getElementById('configBanner').hidden = false;
+  }
+
+  const DEFAULT_CATEGORIES = ['Casacos','T-shirts','Calças','Diversos'];
+  let categories = [...DEFAULT_CATEGORIES];
+  let items = [];
+  let activeFilter = 'Todos';
+  let searchTerm = '';
+  let editingId = null;
+  let pendingFile = null;
+  let pendingImagePreviewUrl = null;
+
+  const grid = document.getElementById('grid');
+  const filterBar = document.getElementById('filterBar');
+  const countLine = document.getElementById('countLine');
+  const emptyState = document.getElementById('emptyState');
+  const overlay = document.getElementById('overlay');
+  const form = document.getElementById('itemForm');
+  const catSelect = document.getElementById('f-categoria');
+  const newCatField = document.getElementById('newCatField');
+  const newCatInput = document.getElementById('f-novacategoria');
+  const photoInput = document.getElementById('f-foto');
+  const photoPreview = document.getElementById('photoPreview');
+  const modalTitle = document.getElementById('modalTitle');
+
+  function escapeHtml(s){
+    return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  async function loadData(){
+    if(!sb){ renderFilterBar(); renderGrid(); return; }
+    grid.innerHTML = '<div class="empty"><div class="et">A carregar…</div></div>';
+
+    const { data: catData, error: catErr } = await sb.from('categories').select('name').order('name');
+    if(!catErr && catData && catData.length){
+      categories = catData.map(c => c.name);
+    }
+
+    const { data: itemData, error: itemErr } = await sb.from('items').select('*').order('created_at', { ascending: false });
+    items = itemErr ? [] : (itemData || []).map(it => ({
+      id: it.id, category: it.category, brand: it.brand, size: it.size,
+      link: it.link, image: it.image_url, imagePath: it.image_path
+    }));
+
+    renderFilterBar();
+    renderGrid();
+  }
+
+  function renderFilterBar(){
+    const all = ['Todos', ...categories];
+    filterBar.innerHTML = '';
+    all.forEach(cat => {
+      const btn = document.createElement('button');
+      btn.className = 'pill' + (cat === activeFilter ? ' active' : '');
+      btn.textContent = cat;
+      btn.addEventListener('click', () => { activeFilter = cat; renderFilterBar(); renderGrid(); });
+      filterBar.appendChild(btn);
+    });
+    const searchWrap = document.createElement('div');
+    searchWrap.className = 'search-wrap';
+    searchWrap.innerHTML = '<input type="text" id="searchInput" placeholder="Pesquisar marca…">';
+    filterBar.appendChild(searchWrap);
+    const si = searchWrap.querySelector('#searchInput');
+    si.value = searchTerm;
+    si.addEventListener('input', e => { searchTerm = e.target.value.toLowerCase(); renderGrid(); });
+  }
+
+  function renderGrid(){
+    const filtered = items.filter(it => {
+      const catOk = activeFilter === 'Todos' || it.category === activeFilter;
+      const term = searchTerm.trim();
+      const searchOk = !term || (it.brand||'').toLowerCase().includes(term) || (it.category||'').toLowerCase().includes(term);
+      return catOk && searchOk;
+    });
+
+    countLine.textContent = `${filtered.length} peça${filtered.length===1?'':'s'}${activeFilter!=='Todos' ? ' · ' + activeFilter : ''}`;
+
+    if(filtered.length === 0){
+      grid.innerHTML = '';
+      emptyState.hidden = false;
+      emptyState.querySelector('.et').textContent = items.length === 0 ? 'O armário está vazio' : 'Nada por aqui';
+      emptyState.querySelector('.es').textContent = items.length === 0
+        ? 'Adiciona a tua primeira peça com foto, marca, tamanho e o link da Vinted.'
+        : 'Sem peças nesta categoria ou pesquisa.';
+      return;
+    }
+    emptyState.hidden = true;
+
+    grid.innerHTML = filtered.map(it => `
+      <div class="card" data-id="${it.id}">
+        <div class="card-string"></div>
+        <div class="card-hole"></div>
+        <div class="card-photo">
+          ${it.image ? `<img src="${it.image}" alt="${escapeHtml(it.brand)}">` : '<span class="noimg">sem foto</span>'}
+        </div>
+        <div class="card-body">
+          <div class="card-cat">${escapeHtml(it.category)}</div>
+          <div class="card-brand">${escapeHtml(it.brand) || '—'}</div>
+          <div class="card-size">Tam. ${escapeHtml(it.size) || '—'}</div>
+          <div class="card-foot">
+            ${it.link ? `<a class="card-link" href="${escapeHtml(it.link)}" target="_blank" rel="noopener">Ver na Vinted</a>` : '<span></span>'}
+            <div class="card-actions">
+              <button class="icon-btn" data-action="edit" data-id="${it.id}">editar</button>
+              <button class="icon-btn" data-action="delete" data-id="${it.id}">eliminar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    grid.querySelectorAll('[data-action="edit"]').forEach(b => b.addEventListener('click', () => openEdit(b.dataset.id)));
+    grid.querySelectorAll('[data-action="delete"]').forEach(b => b.addEventListener('click', () => deleteItem(b.dataset.id)));
+  }
+
+  function populateCategorySelect(selected){
+    catSelect.innerHTML = categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')
+      + '<option value="__new__">+ Nova categoria…</option>';
+    if(selected) catSelect.value = selected;
+    newCatField.hidden = catSelect.value !== '__new__';
+  }
+
+  catSelect.addEventListener('change', () => { newCatField.hidden = catSelect.value !== '__new__'; });
+
+  function resetForm(){
+    form.reset();
+    pendingFile = null;
+    pendingImagePreviewUrl = null;
+    photoPreview.innerHTML = '<span>sem foto</span>';
+    populateCategorySelect();
+    newCatField.hidden = true;
+  }
+
+  function openModal(title){ modalTitle.textContent = title; overlay.hidden = false; }
+  function closeModal(){ overlay.hidden = true; editingId = null; resetForm(); }
+
+  document.getElementById('openAdd').addEventListener('click', () => {
+    editingId = null; resetForm(); openModal('Adicionar peça');
+  });
+  document.getElementById('closeModal').addEventListener('click', closeModal);
+  overlay.addEventListener('click', e => { if(e.target === overlay) closeModal(); });
+
+  function openEdit(id){
+    const it = items.find(x => x.id === id);
+    if(!it) return;
+    editingId = id;
+    populateCategorySelect(it.category);
+    document.getElementById('f-marca').value = it.brand || '';
+    document.getElementById('f-tamanho').value = it.size || '';
+    document.getElementById('f-link').value = it.link || '';
+    pendingFile = null;
+    photoPreview.innerHTML = it.image ? `<img src="${it.image}">` : '<span>sem foto</span>';
+    openModal('Editar peça');
+  }
+
+  function resizeImage(file, maxW){
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, maxW / img.width);
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width * scale;
+          canvas.height = img.height * scale;
+          canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+          canvas.toBlob(blob => resolve(blob), 'image/jpeg', 0.75);
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  photoInput.addEventListener('change', async () => {
+    const file = photoInput.files[0];
+    if(!file) return;
+    const blob = await resizeImage(file, 800);
+    pendingFile = blob;
+    pendingImagePreviewUrl = URL.createObjectURL(blob);
+    photoPreview.innerHTML = `<img src="${pendingImagePreviewUrl}">`;
+  });
+
+  async function deleteItem(id){
+    if(!confirm('Eliminar esta peça?')) return;
+    const it = items.find(x => x.id === id);
+    try{
+      if(sb){
+        await sb.from('items').delete().eq('id', id);
+        if(it && it.imagePath){
+          await sb.storage.from(PHOTOS_BUCKET).remove([it.imagePath]);
         }
+      }
+    }catch(e){ console.error('Erro ao eliminar', e); }
+    items = items.filter(x => x.id !== id);
+    renderGrid();
+  }
 
-        async function adicionar() {
-            const m = document.getElementById('marca').value;
-            const l = document.getElementById('link').value;
-            const { error } = await supabase.from('Favoritos').insert([{ Marca: m, Link: l }]);
-            if (error) { console.error("Erro ao inserir:", error); }
-            else { carregar(); }
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if(!sb){ alert('Configura primeiro o SUPABASE_URL e SUPABASE_ANON_KEY no topo do ficheiro.'); return; }
+
+    const saveBtn = document.getElementById('saveBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'A guardar…';
+
+    try{
+      let category = catSelect.value;
+      if(category === '__new__'){
+        const newCat = newCatInput.value.trim();
+        if(!newCat){ alert('Indica o nome da nova categoria.'); return; }
+        category = newCat;
+        if(!categories.includes(newCat)){
+          await sb.from('categories').insert({ name: newCat });
+          categories.push(newCat);
         }
+      }
 
-        async function apagar(id) {
-            const { error } = await supabase.from('Favoritos').delete().eq('id', id);
-            if (error) { console.error("Erro ao apagar:", error); }
-            else { carregar(); }
+      let imageUrl = null, imagePath = null;
+      const existing = editingId ? items.find(x => x.id === editingId) : null;
+      if(pendingFile){
+        const path = `item-${Date.now()}-${Math.random().toString(36).slice(2,7)}.jpg`;
+        const { error: upErr } = await sb.storage.from(PHOTOS_BUCKET).upload(path, pendingFile, { contentType: 'image/jpeg' });
+        if(upErr) throw upErr;
+        const { data: pub } = sb.storage.from(PHOTOS_BUCKET).getPublicUrl(path);
+        imageUrl = pub.publicUrl;
+        imagePath = path;
+        if(existing && existing.imagePath){
+          await sb.storage.from(PHOTOS_BUCKET).remove([existing.imagePath]);
         }
+      } else if(existing){
+        imageUrl = existing.image;
+        imagePath = existing.imagePath;
+      }
 
-        carregar();
-    </script>
+      const payload = {
+        category,
+        brand: document.getElementById('f-marca').value.trim(),
+        size: document.getElementById('f-tamanho').value.trim(),
+        link: document.getElementById('f-link').value.trim(),
+        image_url: imageUrl,
+        image_path: imagePath
+      };
+
+      if(editingId){
+        const { error } = await sb.from('items').update(payload).eq('id', editingId);
+        if(error) throw error;
+      } else {
+        const { error } = await sb.from('items').insert(payload);
+        if(error) throw error;
+      }
+
+      await loadData();
+      closeModal();
+    }catch(err){
+      console.error(err);
+      alert('Não foi possível guardar: ' + (err.message || err));
+    }finally{
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Guardar';
+    }
+  });
+
+  loadData();
+})();
+</script>
 </body>
 </html>
