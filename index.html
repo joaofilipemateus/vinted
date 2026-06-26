@@ -23,14 +23,16 @@
     <div class="grid" id="lista"></div>
 
     <script>
-        // Inicialização única
+        // Configuração única - garantindo que 'supabase' só é declarado uma vez
         const supabaseUrl = 'https://eruhimxndstwsjgcvbac.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVydWhpbXhuZHN0d3NqZ2N2YmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTU5Mzg1ODIsImV4cCI6MjAzMTUxNDU4Mn0.ejQ87s-N649LqKk4pXfW4pWzS0iWd7n1-vJ8P0bN9-w';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        
+        const supabase = supabase.createClient(supabaseUrl, supabaseKey);
 
         async function carregar() {
             const { data, error } = await supabase.from('Favoritos').select('*');
-            if (error) { console.error(error); return; }
+            if (error) { console.error("Erro ao carregar:", error); return; }
+            
             const lista = document.getElementById('lista');
             lista.innerHTML = data.map(i => `
                 <div class="card">
@@ -44,13 +46,15 @@
         async function adicionar() {
             const m = document.getElementById('marca').value;
             const l = document.getElementById('link').value;
-            await supabase.from('Favoritos').insert([{ Marca: m, Link: l }]);
-            carregar();
+            const { error } = await supabase.from('Favoritos').insert([{ Marca: m, Link: l }]);
+            if (error) { console.error("Erro ao inserir:", error); }
+            else { carregar(); }
         }
 
         async function apagar(id) {
-            await supabase.from('Favoritos').delete().eq('id', id);
-            carregar();
+            const { error } = await supabase.from('Favoritos').delete().eq('id', id);
+            if (error) { console.error("Erro ao apagar:", error); }
+            else { carregar(); }
         }
 
         carregar();
