@@ -45,7 +45,7 @@
   .controls-wrapper { position: sticky; top: 0; z-index: 10; background: rgba(236, 231, 220, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(217,210,194,0.5); }
   .controls{ max-width: 1180px; margin: 0 auto; padding: 14px 28px; display:flex; flex-wrap:wrap; gap: 10px 12px; align-items:center; }
   
-  .pill{ font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; background: #fff; border: 1px solid var(--line); color: var(--ink-soft); border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+  .pill{ font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; background: #fff; border: 1px solid var(--line); color: var(--ink-soft); border-radius: 999px; padding: 6px 14px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
   .pill.active{ background: var(--accent-2); border-color: var(--accent-2); color: #fff; transform: scale(1.04); box-shadow: 0 4px 10px rgba(51,73,92,0.2); }
   .pill:hover:not(.active){ border-color: var(--ink); color: var(--ink); transform: translateY(-1px); }
   
@@ -77,11 +77,9 @@
   
   .card-body{ padding: 18px; display:flex; flex-direction:column; gap: 8px; flex:1; }
   
-  .card-cat{ display: inline-block; align-self: flex-start; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-sm); background: #f0eae1; color: var(--ink); margin-bottom: 2px; }
+  .card-cat{ display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-sm); background: #f0eae1; color: var(--ink); margin-bottom: 2px; }
   
   .card-header-row{ display: flex; justify-content: space-between; align-items: center; gap: 8px; }
-  
-  /* Ajuste Editorial na Marca */
   .card-brand{ font-family: var(--font-display); font-weight:600; font-size: 20px; line-height:1.15; color: var(--ink); text-transform: uppercase; letter-spacing: 0.04em; }
   
   .card-price{ font-family: var(--font-mono); font-weight:700; font-size: 14px; color: var(--accent-2); background: #f5f2eb; padding: 2px 7px; border-radius: var(--radius-sm); white-space: nowrap; }
@@ -245,7 +243,7 @@
     document.getElementById('configBanner').hidden = false;
   }
 
-  const DEFAULT_CATEGORIES = ['Casacos','T-shirts','Calças','Diversos'];
+  const DEFAULT_CATEGORIES = ['Casacos','T-shirts','Calças','Ténis','Diversos'];
   let categories = [...DEFAULT_CATEGORIES];
   let items = [];
   let activeFilter = 'Todos';
@@ -254,12 +252,21 @@
   let pendingFile = null;
   let pendingImagePreviewUrl = null;
 
-  const CAT_COLORS = {
-    'casacos': { bg: '#E2EBE9', co: '#2E4A43' },
-    't-shirts': { bg: '#F5E6E8', co: '#5A343C' },
-    'calças': { bg: '#E3EDF7', co: '#2C4A6F' },
-    'diversos': { bg: '#F1EBE4', co: '#5C4E43' }
+  // Dicionário inteligente de cores e emojis por categoria
+  const CAT_CONFIG = {
+    'casacos': { bg: '#E2EBE9', co: '#2E4A43', emoji: '🧥' },
+    't-shirts': { bg: '#F5E6E8', co: '#5A343C', emoji: '👕' },
+    'calças': { bg: '#E3EDF7', co: '#2C4A6F', emoji: '👖' },
+    'ténis': { bg: '#EAE6F3', co: '#4A3B6A', emoji: '👟' },
+    'sapatilhas': { bg: '#EAE6F3', co: '#4A3B6A', emoji: '👟' },
+    'calçado': { bg: '#EAE6F3', co: '#4A3B6A', emoji: '👟' },
+    'diversos': { bg: '#F1EBE4', co: '#5C4E43', emoji: '📦' }
   };
+
+  function getCatStyle(categoryName) {
+    const slug = (categoryName || '').toLowerCase().trim();
+    return CAT_CONFIG[slug] || { bg: '#F0EAE1', co: 'var(--ink)', emoji: '🏷️' };
+  }
 
   const grid = document.getElementById('grid');
   const filterBar = document.getElementById('filterBar');
@@ -312,7 +319,11 @@
     all.forEach(cat => {
       const btn = document.createElement('button');
       btn.className = 'pill' + (cat === activeFilter ? ' active' : '');
-      btn.textContent = cat;
+      
+      const config = getCatStyle(cat);
+      const emojiSpan = cat !== 'Todos' ? `<span>${config.emoji}</span> ` : '';
+      btn.innerHTML = `${emojiSpan}${cat}`;
+      
       btn.addEventListener('click', () => { activeFilter = cat; renderFilterBar(); renderGrid(); });
       filterBar.appendChild(btn);
     });
@@ -347,8 +358,7 @@
     emptyState.hidden = true;
 
     grid.innerHTML = filtered.map((it, index) => {
-      const slug = (it.category || '').toLowerCase();
-      const colorScheme = CAT_COLORS[slug] || { bg: '#F0EAE1', co: 'var(--ink)' };
+      const style = getCatStyle(it.category);
       
       return `
         <div class="card" data-id="${it.id}" style="animation-delay: ${index * 0.03}s">
@@ -359,7 +369,9 @@
             <span class="noimg" style="${it.image ? 'display:none;' : ''}">sem foto</span>
           </div>
           <div class="card-body">
-            <div class="card-cat" style="background: ${colorScheme.bg}; color: ${colorScheme.co};">${escapeHtml(it.category)}</div>
+            <div class="card-cat" style="background: ${style.bg}; color: ${style.co};">
+              <span>${style.emoji}</span> ${escapeHtml(it.category)}
+            </div>
             <div class="card-header-row">
               <div class="card-brand">${escapeHtml(it.brand) || '—'}</div>
               ${it.price ? `<div class="card-price">${escapeHtml(it.price)}</div>` : ''}
@@ -386,8 +398,10 @@
   }
 
   function populateCategorySelect(selected){
-    catSelect.innerHTML = categories.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')
-      + '<option value="__new__">+ Nova categoria…</option>';
+    catSelect.innerHTML = categories.map(c => {
+      const config = getCatStyle(c);
+      return `<option value="${escapeHtml(c)}">${config.emoji} ${escapeHtml(c)}</option>`;
+    }).join('') + '<option value="__new__">➕ Nova categoria…</option>';
     if(selected) catSelect.value = selected;
     newCatField.hidden = catSelect.value !== '__new__';
   }
