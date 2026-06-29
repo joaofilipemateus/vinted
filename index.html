@@ -59,6 +59,7 @@
   .card-body{ padding: 14px 14px 16px; display:flex; flex-direction:column; gap: 6px; flex:1; }
   .card-cat{ font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); }
   .card-brand{ font-family: var(--font-display); font-weight:600; font-size: 17px; line-height:1.2; color: var(--ink); }
+  .card-price{ font-family: var(--font-body); font-weight:700; font-size: 15px; color: var(--ink); }
   .card-size{ font-family: var(--font-mono); font-size: 12px; color: var(--ink-soft); }
   .card-foot{ margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top: 8px; border-top: 1px dashed var(--line); }
   .card-link{ font-family: var(--font-body); font-weight:600; font-size: 12.5px; color: var(--accent-2); text-decoration:none; border-bottom: 1px solid var(--accent-2); }
@@ -145,6 +146,10 @@
         <input type="text" id="f-marca" placeholder="ex: Zara">
       </div>
       <div class="field">
+        <label for="f-preco">Preço</label>
+        <input type="text" id="f-preco" placeholder="ex: 15€">
+      </div>
+      <div class="field">
         <label for="f-tamanho">Tamanho</label>
         <input type="text" id="f-tamanho" placeholder="ex: M / 38 / 10 anos">
       </div>
@@ -214,7 +219,7 @@
 
     const { data: itemData, error: itemErr } = await sb.from('items').select('*').order('created_at', { ascending: false });
     items = itemErr ? [] : (itemData || []).map(it => ({
-      id: it.id, category: it.category, brand: it.brand, size: it.size,
+      id: it.id, category: it.category, brand: it.brand, size: it.size, price: it.price,
       link: it.link, image: it.image_url, imagePath: it.image_path
     }));
 
@@ -256,7 +261,7 @@
       emptyState.hidden = false;
       emptyState.querySelector('.et').textContent = items.length === 0 ? 'O armário está vazio' : 'Nada por aqui';
       emptyState.querySelector('.es').textContent = items.length === 0
-        ? 'Adiciona a tua primeira peça com foto, marca, tamanho e o link da Vinted.'
+        ? 'Adiciona a tua primeira peça com foto, marca, preço, tamanho e o link da Vinted.'
         : 'Sem peças nesta categoria ou pesquisa.';
       return;
     }
@@ -272,6 +277,7 @@
         <div class="card-body">
           <div class="card-cat">${escapeHtml(it.category)}</div>
           <div class="card-brand">${escapeHtml(it.brand) || '—'}</div>
+          ${it.price ? `<div class="card-price">${escapeHtml(it.price)}</div>` : ''}
           <div class="card-size">Tam. ${escapeHtml(it.size) || '—'}</div>
           <div class="card-foot">
             ${it.link ? `<a class="card-link" href="${escapeHtml(it.link)}" target="_blank" rel="noopener">Ver na Vinted</a>` : '<span></span>'}
@@ -322,6 +328,7 @@
     editingId = id;
     populateCategorySelect(it.category);
     document.getElementById('f-marca').value = it.brand || '';
+    document.getElementById('f-preco').value = it.price || '';
     document.getElementById('f-tamanho').value = it.size || '';
     document.getElementById('f-link').value = it.link || '';
     photoLinkInput.value = it.image || '';
@@ -428,6 +435,7 @@
       const payload = {
         category,
         brand: document.getElementById('f-marca').value.trim(),
+        price: document.getElementById('f-preco').value.trim(),
         size: document.getElementById('f-tamanho').value.trim(),
         link: document.getElementById('f-link').value.trim(),
         image_url: imageUrl,
