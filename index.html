@@ -75,7 +75,7 @@
   .card:hover .card-photo img { transform: scale(1.05); }
   .card-photo .noimg{ font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; }
   
-  .card-body{ padding: 18px; display:flex; flex-direction:column; gap: 8px; flex:1; }
+  .card-body{ padding: 18px; display:flex; flex-direction:column; gap: 10px; flex:1; }
   
   .card-cat{ display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-sm); background: #f0eae1; color: var(--ink); margin-bottom: 2px; }
   
@@ -84,8 +84,10 @@
   
   .card-price{ font-family: var(--font-mono); font-weight:700; font-size: 14px; color: var(--accent-2); background: #f5f2eb; padding: 2px 7px; border-radius: var(--radius-sm); white-space: nowrap; }
   
-  .card-size{ font-family: var(--font-mono); font-size: 11.5px; color: var(--ink-soft); margin-bottom: 4px; }
-  
+  /* Bloco de Cor Melhorado para o Tamanho */
+  .card-size{ font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink); background: #f5f2eb; padding: 5px 10px; border-radius: var(--radius-sm); border-left: 3px solid var(--line); display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-bottom: 4px; }
+  .card:hover .card-size { background: #ebdcc5; border-left-color: var(--accent-2); }
+
   .card-foot{ margin-top:auto; display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top: 14px; border-top: 1px dashed var(--line); }
   .card-link{ font-family: var(--font-body); font-weight:600; font-size: 13px; color: var(--accent-2); text-decoration:none; position: relative; padding-bottom: 1px; }
   .card-link::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 1.5px; background: var(--accent-2); transform: scaleX(0.3); transform-origin: left; transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
@@ -243,7 +245,7 @@
     document.getElementById('configBanner').hidden = false;
   }
 
-  const DEFAULT_CATEGORIES = ['Casacos','T-shirts','Calças','Ténis','Diversos'];
+  const DEFAULT_CATEGORIES = ['Casacos','Camisolas','T-shirts','Calças','Ténis','Chapéus','Diversos'];
   let categories = [...DEFAULT_CATEGORIES];
   let items = [];
   let activeFilter = 'Todos';
@@ -252,14 +254,16 @@
   let pendingFile = null;
   let pendingImagePreviewUrl = null;
 
-  // Dicionário inteligente de cores e emojis por categoria
   const CAT_CONFIG = {
     'casacos': { bg: '#E2EBE9', co: '#2E4A43', emoji: '🧥' },
+    'camisolas': { bg: '#F5EFE6', co: '#614E3D', emoji: '🧶' },
     't-shirts': { bg: '#F5E6E8', co: '#5A343C', emoji: '👕' },
     'calças': { bg: '#E3EDF7', co: '#2C4A6F', emoji: '👖' },
     'ténis': { bg: '#EAE6F3', co: '#4A3B6A', emoji: '👟' },
     'sapatilhas': { bg: '#EAE6F3', co: '#4A3B6A', emoji: '👟' },
     'calçado': { bg: '#EAE6F3', co: '#4A3B6A', emoji: '👟' },
+    'chapéus': { bg: '#E1EDF2', co: '#2B4A57', emoji: '🧢' },
+    'bonés': { bg: '#E1EDF2', co: '#2B4A57', emoji: '🧢' },
     'diversos': { bg: '#F1EBE4', co: '#5C4E43', emoji: '📦' }
   };
 
@@ -376,7 +380,9 @@
               <div class="card-brand">${escapeHtml(it.brand) || '—'}</div>
               ${it.price ? `<div class="card-price">${escapeHtml(it.price)}</div>` : ''}
             </div>
-            <div class="card-size">Tam. ${escapeHtml(it.size) || '—'}</div>
+            
+            <div class="card-size">📏 Tam. ${escapeHtml(it.size) || '—'}</div>
+            
             <div class="card-foot">
               ${it.link ? `<a class="card-link" href="${escapeHtml(it.link)}" target="_blank" rel="noopener">Ver na Vinted</a>` : '<span></span>'}
               <div class="card-actions">
