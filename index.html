@@ -38,19 +38,19 @@
   .brandmark{ font-family: var(--font-display); font-weight:700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 24px; display:flex; align-items:baseline; gap:10px; }
   .brandmark small{ font-family: var(--font-mono); font-size:11px; letter-spacing: 0.08em; color:#F3EFE4aa; text-transform:none; }
   
-  /* BOTÃO FLUTUANTE (FAB) ATUALIZADO */
+  /* BOTÃO FLUTUANTE (FAB) RETOMADO */
   .btn-add{ 
     position: fixed;
     bottom: 24px;
     right: 24px;
-    z-index: 40; /* Garante que fica acima dos cartões, mas abaixo do modal overlay (50) */
+    z-index: 40; 
     font-family: var(--font-body); 
     font-weight: 600; 
     font-size: 15px; 
     background: var(--accent); 
     color: #fff; 
     border: none; 
-    border-radius: 50px; /* Formato de pílula arredondada elegante */
+    border-radius: 50px; 
     padding: 14px 24px; 
     cursor: pointer; 
     letter-spacing: 0.01em; 
@@ -75,7 +75,7 @@
 
   .count-line{ max-width: 1180px; margin: 14px auto 0; padding: 0 28px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
 
-  main{ max-width: 1180px; margin: 0 auto; padding: 10px 28px 100px; } /* Adicionado um pouco de padding ao fundo para o botão não tapar o último cartão */
+  main{ max-width: 1180px; margin: 0 auto; padding: 10px 28px 100px; } 
   .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 36px 24px; }
   
   @keyframes cardEntrance {
@@ -529,6 +529,18 @@
     if(!sb){ alert('Configura primeiro o SUPABASE_URL e SUPABASE_ANON_KEY no topo do ficheiro.'); return; }
 
     const saveBtn = document.getElementById('saveBtn');
+    
+    // ====== VALIDAÇÃO INTEGRA ANTI-DUPLICADOS RECUPERADA ======
+    const currentLink = document.getElementById('f-link').value.trim();
+    if (currentLink) {
+      const isDuplicate = items.some(it => it.link === currentLink && it.id !== editingId);
+      if (isDuplicate) {
+        alert('Esta peça já foi guardada! (O link da Vinted já existe nos teus favoritos).');
+        return; 
+      }
+    }
+    // ========================================================
+
     saveBtn.disabled = true;
     saveBtn.textContent = 'A guardar…';
 
@@ -570,7 +582,7 @@
         brand: document.getElementById('f-marca').value.trim(),
         price: document.getElementById('f-preco').value.trim(),
         size: document.getElementById('f-tamanho').value.trim(),
-        link: document.getElementById('f-link').value.trim(),
+        link: currentLink,
         image_url: imageUrl,
         image_path: imagePath
       };
