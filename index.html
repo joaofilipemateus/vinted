@@ -38,9 +38,29 @@
   .brandmark{ font-family: var(--font-display); font-weight:700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 24px; display:flex; align-items:baseline; gap:10px; }
   .brandmark small{ font-family: var(--font-mono); font-size:11px; letter-spacing: 0.08em; color:#F3EFE4aa; text-transform:none; }
   
-  .btn-add{ font-family: var(--font-body); font-weight:600; font-size: 14px; background: var(--accent); color:#fff; border: none; border-radius: var(--radius-md); padding: 11px 22px; cursor:pointer; letter-spacing: 0.01em; box-shadow: 0 3px 8px rgba(168,57,46,0.15); }
-  .btn-add:hover{ filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(168,57,46,0.25); }
-  .btn-add:active{ transform: translateY(0); }
+  /* BOTÃO FLUTUANTE (FAB) ATUALIZADO */
+  .btn-add{ 
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 40; /* Garante que fica acima dos cartões, mas abaixo do modal overlay (50) */
+    font-family: var(--font-body); 
+    font-weight: 600; 
+    font-size: 15px; 
+    background: var(--accent); 
+    color: #fff; 
+    border: none; 
+    border-radius: 50px; /* Formato de pílula arredondada elegante */
+    padding: 14px 24px; 
+    cursor: pointer; 
+    letter-spacing: 0.01em; 
+    box-shadow: 0 4px 16px rgba(168,57,46,0.35); 
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-add:hover{ filter: brightness(1.1); transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 24px rgba(168,57,46,0.45); }
+  .btn-add:active{ transform: translateY(-1px); }
 
   .controls-wrapper { position: sticky; top: 0; z-index: 10; background: rgba(236, 231, 220, 0.88); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(217,210,194,0.5); }
   .controls{ max-width: 1180px; margin: 0 auto; padding: 14px 28px; display:flex; flex-wrap:wrap; gap: 10px 12px; align-items:center; }
@@ -55,7 +75,7 @@
 
   .count-line{ max-width: 1180px; margin: 14px auto 0; padding: 0 28px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
 
-  main{ max-width: 1180px; margin: 0 auto; padding: 10px 28px 80px; }
+  main{ max-width: 1180px; margin: 0 auto; padding: 10px 28px 100px; } /* Adicionado um pouco de padding ao fundo para o botão não tapar o último cartão */
   .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 36px 24px; }
   
   @keyframes cardEntrance {
@@ -84,7 +104,6 @@
   
   .card-price{ font-family: var(--font-mono); font-weight:700; font-size: 14px; color: var(--accent-2); background: #f5f2eb; padding: 2px 7px; border-radius: var(--radius-sm); white-space: nowrap; }
   
-  /* Bloco de Cor Melhorado para o Tamanho */
   .card-size{ font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink); background: #f5f2eb; padding: 5px 10px; border-radius: var(--radius-sm); border-left: 3px solid var(--line); display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-bottom: 4px; }
   .card:hover .card-size { background: #ebdcc5; border-left-color: var(--accent-2); }
 
@@ -148,8 +167,11 @@
 
 <header class="tagband">
   <div class="brandmark">Favoritos <small>· vinted</small></div>
-  <button class="btn-add" id="openAdd">+ Adicionar peça</button>
 </header>
+
+<button class="btn-add" id="openAdd">
+  <span>✨</span> Adicionar peça
+</button>
 
 <div class="banner" id="configBanner" hidden>
   Falta configurar a ligação ao Supabase — edita SUPABASE_URL e SUPABASE_ANON_KEY no topo do ficheiro index.html.
