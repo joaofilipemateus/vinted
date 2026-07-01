@@ -56,7 +56,6 @@
   .pill.active{ background: var(--accent-2); border-color: var(--accent-2); color: #fff; transform: scale(1.04); box-shadow: 0 4px 10px rgba(51,73,92,0.2); }
   .pill:hover:not(.active){ border-color: var(--ink); color: var(--ink); transform: translateY(-1px); }
   
-  /* ÁREA DA PESQUISA E ORDENAÇÃO */
   .actions-wrap { margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
   
   .sort-wrap select { 
@@ -90,6 +89,7 @@
   .card-photo img{ width:100%; height:100%; object-fit:cover; display:block; transform: scale(1.001); }
   .card:hover .card-photo img { transform: scale(1.05); }
   .card-photo .noimg{ font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; }
+  .photo-link { position: absolute; inset: 0; z-index: 5; display: block; cursor: pointer; }
   
   .card-body{ padding: 18px; display:flex; flex-direction:column; gap: 10px; flex:1; }
   .card-cat{ display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-sm); background: #f0eae1; color: var(--ink); margin-bottom: 2px; }
@@ -262,10 +262,9 @@
   let categories = [...DEFAULT_CATEGORIES];
   let items = [];
   
-  // NOVAS VARIÁVEIS DE FILTRO E ORDENAÇÃO
   let activeFilter = 'Todos';
   let searchTerm = '';
-  let activeSort = 'newest'; // newest, oldest, priceAsc, priceDesc
+  let activeSort = 'newest'; 
   
   let editingId = null;
   let pendingFile = null;
@@ -338,7 +337,6 @@
     const all = ['Todos', ...categories];
     filterBar.innerHTML = '';
     
-    // Categorias
     all.forEach(cat => {
       const btn = document.createElement('button');
       btn.className = 'pill' + (cat === activeFilter ? ' active' : '');
@@ -349,7 +347,6 @@
       filterBar.appendChild(btn);
     });
 
-    // Zona de ações: Select de Ordenação + Search
     const actionsWrap = document.createElement('div');
     actionsWrap.className = 'actions-wrap';
     
@@ -375,7 +372,6 @@
     so.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
   }
 
-  // Função ajudante para extrair o valor numérico de strings como "15€" ou "€15.50"
   function parsePrice(priceStr) {
     if (!priceStr) return 0;
     const match = priceStr.replace(',', '.').match(/[\d.]+/);
@@ -383,7 +379,6 @@
   }
 
   function renderGrid(){
-    // 1. Filtrar
     let filtered = items.filter(it => {
       const catOk = activeFilter === 'Todos' || it.category === activeFilter;
       const term = searchTerm.trim();
@@ -391,16 +386,15 @@
       return catOk && searchOk;
     });
 
-    // 2. Ordenar
     filtered.sort((a, b) => {
       if (activeSort === 'priceAsc') {
         return parsePrice(a.price) - parsePrice(b.price);
       } else if (activeSort === 'priceDesc') {
         return parsePrice(b.price) - parsePrice(a.price);
       } else if (activeSort === 'oldest') {
-        return items.indexOf(b) - items.indexOf(a); // inverte a ordem natural (que é do mais recente para o mais antigo)
+        return items.indexOf(b) - items.indexOf(a); 
       } else {
-        return items.indexOf(a) - items.indexOf(b); // ordem natural (mais recentes 1º)
+        return items.indexOf(a) - items.indexOf(b); 
       }
     });
 
@@ -424,10 +418,13 @@
         <div class="card" data-id="${it.id}" style="animation-delay: ${index * 0.03}s">
           <div class="card-string"></div>
           <div class="card-hole"></div>
+          
           <div class="card-photo">
+            ${it.link ? `<a href="${escapeHtml(it.link)}" target="_blank" rel="noopener" class="photo-link" title="Ver na Vinted"></a>` : ''}
             ${it.image ? `<img src="${it.image}" alt="${escapeHtml(it.brand)}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">` : ''}
             <span class="noimg" style="${it.image ? 'display:none;' : ''}">sem foto</span>
           </div>
+
           <div class="card-body">
             <div class="card-cat" style="background: ${style.bg}; color: ${style.co};">
               <span>${style.emoji}</span> ${escapeHtml(it.category)}
