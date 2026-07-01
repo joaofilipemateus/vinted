@@ -38,26 +38,13 @@
   .brandmark{ font-family: var(--font-display); font-weight:700; letter-spacing: 0.12em; text-transform: uppercase; font-size: 24px; display:flex; align-items:baseline; gap:10px; }
   .brandmark small{ font-family: var(--font-mono); font-size:11px; letter-spacing: 0.08em; color:#F3EFE4aa; text-transform:none; }
   
-  /* BOTÃO FLUTUANTE (FAB) RETOMADO */
   .btn-add{ 
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 40; 
-    font-family: var(--font-body); 
-    font-weight: 600; 
-    font-size: 15px; 
-    background: var(--accent); 
-    color: #fff; 
-    border: none; 
-    border-radius: 50px; 
-    padding: 14px 24px; 
-    cursor: pointer; 
-    letter-spacing: 0.01em; 
-    box-shadow: 0 4px 16px rgba(168,57,46,0.35); 
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    position: fixed; bottom: 24px; right: 24px; z-index: 40; 
+    font-family: var(--font-body); font-weight: 600; font-size: 15px; 
+    background: var(--accent); color: #fff; border: none; 
+    border-radius: 50px; padding: 14px 24px; cursor: pointer; 
+    letter-spacing: 0.01em; box-shadow: 0 4px 16px rgba(168,57,46,0.35); 
+    display: flex; align-items: center; gap: 8px;
   }
   .btn-add:hover{ filter: brightness(1.1); transform: translateY(-3px) scale(1.02); box-shadow: 0 8px 24px rgba(168,57,46,0.45); }
   .btn-add:active{ transform: translateY(-1px); }
@@ -69,20 +56,29 @@
   .pill.active{ background: var(--accent-2); border-color: var(--accent-2); color: #fff; transform: scale(1.04); box-shadow: 0 4px 10px rgba(51,73,92,0.2); }
   .pill:hover:not(.active){ border-color: var(--ink); color: var(--ink); transform: translateY(-1px); }
   
-  .search-wrap{ margin-left: auto; position: relative; }
-  .search-wrap input{ font-family: var(--font-body); font-size: 13.5px; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-md); padding: 8px 14px; width: 220px; color: var(--ink); }
-  .search-wrap input:focus{ outline: none; border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(51,73,92,0.12); width: 250px; background: #fff; }
+  /* ÁREA DA PESQUISA E ORDENAÇÃO */
+  .actions-wrap { margin-left: auto; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  
+  .sort-wrap select { 
+    font-family: var(--font-body); font-size: 13.5px; font-weight: 500;
+    border: 1px solid var(--line); background: var(--surface); 
+    border-radius: var(--radius-md); padding: 8px 32px 8px 14px; color: var(--ink);
+    cursor: pointer; appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23262320' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+  }
+  .sort-wrap select:focus { outline: none; border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(51,73,92,0.12); }
+
+  .search-wrap input{ font-family: var(--font-body); font-size: 13.5px; border: 1px solid var(--line); background: var(--surface); border-radius: var(--radius-md); padding: 8px 14px; width: 200px; color: var(--ink); }
+  .search-wrap input:focus{ outline: none; border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(51,73,92,0.12); width: 230px; background: #fff; }
 
   .count-line{ max-width: 1180px; margin: 14px auto 0; padding: 0 28px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
 
   main{ max-width: 1180px; margin: 0 auto; padding: 10px 28px 100px; } 
   .grid{ display:grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 36px 24px; }
   
-  @keyframes cardEntrance {
-    from { opacity: 0; transform: translateY(24px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
+  @keyframes cardEntrance { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
   .card{ position:relative; background: var(--surface); border-radius: var(--radius-lg); box-shadow: 0 4px 12px rgba(38,35,32,0.04), 0 1px 3px rgba(38,35,32,0.02); overflow: visible; display:flex; flex-direction:column; margin-top: 15px; animation: cardEntrance 0.55s cubic-bezier(0.16, 1, 0.3, 1) backwards; }
   .card:hover{ transform: translateY(-6px); box-shadow: 0 16px 32px rgba(38,35,32,0.1); }
   
@@ -96,14 +92,11 @@
   .card-photo .noimg{ font-family: var(--font-mono); font-size: 11px; color: var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; }
   
   .card-body{ padding: 18px; display:flex; flex-direction:column; gap: 10px; flex:1; }
-  
   .card-cat{ display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; padding: 2px 8px; border-radius: var(--radius-sm); background: #f0eae1; color: var(--ink); margin-bottom: 2px; }
-  
   .card-header-row{ display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .card-brand{ font-family: var(--font-display); font-weight:600; font-size: 20px; line-height:1.15; color: var(--ink); text-transform: uppercase; letter-spacing: 0.04em; }
   
   .card-price{ font-family: var(--font-mono); font-weight:700; font-size: 14px; color: var(--accent-2); background: #f5f2eb; padding: 2px 7px; border-radius: var(--radius-sm); white-space: nowrap; }
-  
   .card-size{ font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--ink); background: #f5f2eb; padding: 5px 10px; border-radius: var(--radius-sm); border-left: 3px solid var(--line); display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; margin-bottom: 4px; }
   .card:hover .card-size { background: #ebdcc5; border-left-color: var(--accent-2); }
 
@@ -134,13 +127,11 @@
   .modal h2{ font-family: var(--font-display); font-size: 20px; text-transform: uppercase; letter-spacing: .04em; margin: 0 0 16px; color: var(--ink); border-bottom: 2px solid var(--line); padding-bottom: 6px; }
   
   .form-row-2{ display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  
   @keyframes fieldFade { from{ opacity:0; transform: translateY(-4px); } to{ opacity:1; transform: translateY(0); } }
   .expandable-field { animation: fieldFade 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
   .field{ margin-bottom: 11px; display:flex; flex-direction:column; gap:4px; }
   .field label{ font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink); font-weight: 600; }
-  
   .field input[type=text], .field input[type=url], .field select{ font-family: var(--font-body); font-size: 13.5px; border: 1px solid var(--line); border-radius: var(--radius-md); padding: 8px 11px; background: #fff; color: var(--ink); width: 100%; box-shadow: inset 0 1px 2px rgba(0,0,0,0.01); }
   .field input:focus, .field select:focus{ outline:none; border-color: var(--accent-2); background: #fcfcfb; box-shadow: 0 0 0 3px rgba(51,73,92,0.12); }
   
@@ -270,8 +261,12 @@
   const DEFAULT_CATEGORIES = ['Casacos','Camisolas','T-shirts','Calças','Ténis','Chapéus','Diversos'];
   let categories = [...DEFAULT_CATEGORIES];
   let items = [];
+  
+  // NOVAS VARIÁVEIS DE FILTRO E ORDENAÇÃO
   let activeFilter = 'Todos';
   let searchTerm = '';
+  let activeSort = 'newest'; // newest, oldest, priceAsc, priceDesc
+  
   let editingId = null;
   let pendingFile = null;
   let pendingImagePreviewUrl = null;
@@ -342,32 +337,71 @@
   function renderFilterBar(){
     const all = ['Todos', ...categories];
     filterBar.innerHTML = '';
+    
+    // Categorias
     all.forEach(cat => {
       const btn = document.createElement('button');
       btn.className = 'pill' + (cat === activeFilter ? ' active' : '');
-      
       const config = getCatStyle(cat);
       const emojiSpan = cat !== 'Todos' ? `<span>${config.emoji}</span> ` : '';
       btn.innerHTML = `${emojiSpan}${cat}`;
-      
       btn.addEventListener('click', () => { activeFilter = cat; renderFilterBar(); renderGrid(); });
       filterBar.appendChild(btn);
     });
-    const searchWrap = document.createElement('div');
-    searchWrap.className = 'search-wrap';
-    searchWrap.innerHTML = '<input type="text" id="searchInput" placeholder="Pesquisar marca…">';
-    filterBar.appendChild(searchWrap);
-    const si = searchWrap.querySelector('#searchInput');
-    si.value = searchTerm;
+
+    // Zona de ações: Select de Ordenação + Search
+    const actionsWrap = document.createElement('div');
+    actionsWrap.className = 'actions-wrap';
+    
+    actionsWrap.innerHTML = `
+      <div class="sort-wrap">
+        <select id="sortInput" title="Ordenar por...">
+          <option value="newest" ${activeSort === 'newest' ? 'selected' : ''}>Mais recentes</option>
+          <option value="oldest" ${activeSort === 'oldest' ? 'selected' : ''}>Mais antigos</option>
+          <option value="priceAsc" ${activeSort === 'priceAsc' ? 'selected' : ''}>Preço: Mais barato</option>
+          <option value="priceDesc" ${activeSort === 'priceDesc' ? 'selected' : ''}>Preço: Mais caro</option>
+        </select>
+      </div>
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Pesquisar marca…" value="${escapeHtml(searchTerm)}">
+      </div>
+    `;
+    filterBar.appendChild(actionsWrap);
+    
+    const si = actionsWrap.querySelector('#searchInput');
     si.addEventListener('input', e => { searchTerm = e.target.value.toLowerCase(); renderGrid(); });
+
+    const so = actionsWrap.querySelector('#sortInput');
+    so.addEventListener('change', e => { activeSort = e.target.value; renderGrid(); });
+  }
+
+  // Função ajudante para extrair o valor numérico de strings como "15€" ou "€15.50"
+  function parsePrice(priceStr) {
+    if (!priceStr) return 0;
+    const match = priceStr.replace(',', '.').match(/[\d.]+/);
+    return match ? parseFloat(match[0]) : 0;
   }
 
   function renderGrid(){
-    const filtered = items.filter(it => {
+    // 1. Filtrar
+    let filtered = items.filter(it => {
       const catOk = activeFilter === 'Todos' || it.category === activeFilter;
       const term = searchTerm.trim();
       const searchOk = !term || (it.brand||'').toLowerCase().includes(term) || (it.category||'').toLowerCase().includes(term);
       return catOk && searchOk;
+    });
+
+    // 2. Ordenar
+    filtered.sort((a, b) => {
+      if (activeSort === 'priceAsc') {
+        return parsePrice(a.price) - parsePrice(b.price);
+      } else if (activeSort === 'priceDesc') {
+        return parsePrice(b.price) - parsePrice(a.price);
+      } else if (activeSort === 'oldest') {
+        return items.indexOf(b) - items.indexOf(a); // inverte a ordem natural (que é do mais recente para o mais antigo)
+      } else {
+        return items.indexOf(a) - items.indexOf(b); // ordem natural (mais recentes 1º)
+      }
     });
 
     countLine.textContent = `${filtered.length} peça${filtered.length===1?'':'s'}${activeFilter!=='Todos' ? ' · ' + activeFilter : ''}`;
@@ -530,7 +564,6 @@
 
     const saveBtn = document.getElementById('saveBtn');
     
-    // ====== VALIDAÇÃO INTEGRA ANTI-DUPLICADOS RECUPERADA ======
     const currentLink = document.getElementById('f-link').value.trim();
     if (currentLink) {
       const isDuplicate = items.some(it => it.link === currentLink && it.id !== editingId);
@@ -539,7 +572,6 @@
         return; 
       }
     }
-    // ========================================================
 
     saveBtn.disabled = true;
     saveBtn.textContent = 'A guardar…';
